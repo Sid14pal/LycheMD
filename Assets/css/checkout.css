@@ -447,10 +447,50 @@ body.checkout-body {
     background: linear-gradient(180deg, #f7fbff 0%, #ffffff 100%);
     border: 1px solid #e1effa;
     border-radius: 1.8rem;
-    padding: clamp(2rem, 3vw, 2.8rem) clamp(1.4rem, 2.5vw, 2.4rem);
+    padding: clamp(2.4rem, 3.2vw, 3.2rem) clamp(1.4rem, 2.5vw, 2.4rem) clamp(1.8rem, 2.5vw, 2.4rem);
     margin-bottom: 2.4rem;
     position: relative;
     overflow: hidden;
+}
+
+/* Replay Trajectory Animation Pill Button */
+.chart-replay-btn {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.4rem;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #dce8f2;
+    border-radius: 9999px;
+    padding: 0.35rem 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-primary);
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--color-primary-slate);
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: all 0.22s ease;
+    z-index: 3;
+    opacity: 0.85;
+}
+
+.chart-replay-btn:hover {
+    opacity: 1;
+    background: #ffffff;
+    border-color: var(--color-primary-slate);
+    color: #38556f;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(76, 104, 129, 0.18);
+}
+
+.chart-replay-btn svg {
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.chart-replay-btn:hover svg {
+    transform: rotate(-180deg);
 }
 
 .checkout-chart-svg {
@@ -458,7 +498,7 @@ body.checkout-body {
     height: auto;
     max-height: 250px;
     display: block;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .chart-grid-line {
@@ -474,45 +514,74 @@ body.checkout-body {
     fill: #64748b;
 }
 
+/* Weight Loss Bézier Curve */
+.chart-line-path {
+    stroke: #4c6881;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    filter: drop-shadow(0 3px 8px rgba(76, 104, 129, 0.28));
+}
+
+/* Data Nodes & Badges */
+.chart-node {
+    cursor: pointer;
+    outline: none;
+}
+
 .chart-data-point {
     fill: #ffffff;
     stroke: var(--color-primary-slate);
     stroke-width: 3.5;
     filter: drop-shadow(0 2px 6px rgba(76, 104, 129, 0.3));
-    transition: transform 0.2s ease;
+    transition: r 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.2s ease, filter 0.2s ease;
+}
+
+.chart-data-point-target {
+    stroke: #38556f;
+    stroke-width: 4;
 }
 
 .chart-point-pulse {
     fill: var(--color-primary-slate);
-    opacity: 0.25;
-    animation: chartPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    opacity: 0;
+}
+
+.chart-node-4.is-active .chart-point-pulse,
+.chart-point-pulse.is-active {
+    animation: chartPulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes chartPulse {
     0% {
         r: 6;
-        opacity: 0.4;
+        opacity: 0.5;
     }
-
     50% {
-        r: 13;
+        r: 15;
         opacity: 0;
     }
-
     100% {
         r: 6;
         opacity: 0;
     }
 }
 
+.chart-badge-wrap {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, opacity 0.3s ease;
+}
+
 .chart-badge-bg {
     fill: #17252d;
     rx: 8;
+    filter: drop-shadow(0 3px 8px rgba(23, 37, 45, 0.22));
 }
 
 .chart-badge-bg-target {
-    fill: #4c6881;
+    fill: #3f5971;
     rx: 8;
+    filter: drop-shadow(0 4px 12px rgba(76, 104, 129, 0.35));
 }
 
 .chart-badge-text {
@@ -521,6 +590,24 @@ body.checkout-body {
     font-weight: 700;
     fill: #ffffff;
     text-anchor: middle;
+}
+
+/* Interactive Hover Feedback on Nodes */
+.chart-node:hover .chart-data-point,
+.chart-node:focus-visible .chart-data-point {
+    r: 7.5;
+    filter: drop-shadow(0 0 10px rgba(76, 104, 129, 0.6));
+    stroke: #38556f;
+}
+
+.chart-node:hover .chart-data-point-target,
+.chart-node:focus-visible .chart-data-point-target {
+    r: 8.5;
+}
+
+.chart-node:hover .chart-badge-wrap,
+.chart-node:focus-visible .chart-badge-wrap {
+    transform: translateY(-4px);
 }
 
 .checkout-chart-timeline {

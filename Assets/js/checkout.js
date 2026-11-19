@@ -160,6 +160,229 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1000);
 
     // =========================================================================
+    // 3.5. WEIGHT LOSS JOURNEY INTERACTIVE CHART ANIMATION
+    // =========================================================================
+    function initWeightLossChartAnimation() {
+        const chartWrap = document.getElementById('checkoutChartWrap');
+        const path = document.getElementById('chartWeightPath');
+        const clipRect = document.getElementById('chartClipRect');
+        const replayBtn = document.getElementById('chartReplayBtn');
+        if (!chartWrap || !path) return;
+
+        const pathLength = (path.getTotalLength && path.getTotalLength() > 0) ? Math.ceil(path.getTotalLength()) : 445;
+        const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function setInitialState() {
+            if (prefersReducedMotion) {
+                path.style.strokeDasharray = 'none';
+                path.style.strokeDashoffset = '0';
+                if (clipRect) clipRect.setAttribute('width', '540');
+                document.querySelectorAll('.chart-node').forEach(node => {
+                    const c = node.querySelector('circle.chart-data-point');
+                    const b = node.querySelector('.chart-badge-wrap');
+                    if (c) {
+                        const targetR = c.classList.contains('chart-data-point-target') ? '6' : '5';
+                        c.setAttribute('r', targetR);
+                    }
+                    if (b) { b.style.opacity = '1'; b.style.transform = 'none'; }
+                });
+                const pulse = document.querySelector('.chart-point-pulse');
+                if (pulse) pulse.classList.add('is-active');
+                return;
+            }
+
+            path.style.strokeDasharray = `${pathLength} ${pathLength}`;
+            path.style.strokeDashoffset = `${pathLength}`;
+            if (clipRect) clipRect.setAttribute('width', '60');
+
+            document.querySelectorAll('.chart-node').forEach(node => {
+                const c = node.querySelector('circle.chart-data-point');
+                const b = node.querySelector('.chart-badge-wrap');
+                if (c) c.setAttribute('r', '0');
+                if (b) {
+                    b.style.opacity = '0';
+                    b.style.transform = 'translateY(-12px)';
+                }
+            });
+
+            const pulse = document.querySelector('.chart-point-pulse');
+            if (pulse) pulse.classList.remove('is-active');
+
+            document.querySelectorAll('.timeline-step-item').forEach(item => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(8px)';
+            });
+        }
+
+        let isAnimating = false;
+
+        function playAnimation() {
+            if (prefersReducedMotion) {
+                setInitialState();
+                return;
+            }
+            if (isAnimating) return;
+            isAnimating = true;
+
+            setInitialState();
+
+            // High-fidelity GSAP animation if GSAP is available
+            if (typeof gsap !== 'undefined') {
+                const tl = gsap.timeline({
+                    onComplete: () => {
+                        isAnimating = false;
+                    }
+                });
+
+                // 1. Draw smooth Bézier curve (1.45s)
+                tl.to(path, {
+                    strokeDashoffset: 0,
+                    duration: 1.45,
+                    ease: 'power2.inOut'
+                }, 0.1);
+
+                // 2. Synchronize area gradient reveal clip rect
+                if (clipRect) {
+                    tl.to(clipRect, {
+                        attr: { width: 540 },
+                        duration: 1.45,
+                        ease: 'power2.inOut'
+                    }, 0.1);
+                }
+
+                // 3. Stagger data nodes at the exact moment the curve reaches them
+                // Point 1 (Month 1 Start)
+                const n1 = document.querySelector('.chart-node-1');
+                if (n1) {
+                    const c1 = n1.querySelector('circle.chart-data-point');
+                    const b1 = n1.querySelector('.chart-badge-wrap');
+                    if (c1) tl.to(c1, { attr: { r: 5 }, duration: 0.45, ease: 'back.out(2)' }, 0.15);
+                    if (b1) tl.fromTo(b1, { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.8)' }, 0.2);
+                }
+
+                // Point 2 (Month 2)
+                const n2 = document.querySelector('.chart-node-2');
+                if (n2) {
+                    const c2 = n2.querySelector('circle.chart-data-point');
+                    const b2 = n2.querySelector('.chart-badge-wrap');
+                    if (c2) tl.to(c2, { attr: { r: 5 }, duration: 0.45, ease: 'back.out(2)' }, 0.62);
+                    if (b2) tl.fromTo(b2, { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.8)' }, 0.68);
+                }
+
+                // Point 3 (Month 3)
+                const n3 = document.querySelector('.chart-node-3');
+                if (n3) {
+                    const c3 = n3.querySelector('circle.chart-data-point');
+                    const b3 = n3.querySelector('.chart-badge-wrap');
+                    if (c3) tl.to(c3, { attr: { r: 5 }, duration: 0.45, ease: 'back.out(2)' }, 1.02);
+                    if (b3) tl.fromTo(b3, { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.8)' }, 1.08);
+                }
+
+                // Point 4 (Month 4 Target Goal) - Celebratory bounce
+                const n4 = document.querySelector('.chart-node-4');
+                if (n4) {
+                    const c4 = n4.querySelector('circle.chart-data-point');
+                    const b4 = n4.querySelector('.chart-badge-wrap');
+                    const pulse = n4.querySelector('.chart-point-pulse');
+                    if (c4) tl.to(c4, { attr: { r: 6 }, duration: 0.55, ease: 'back.out(2.5)' }, 1.42);
+                    if (pulse) tl.call(() => { pulse.classList.add('is-active'); }, null, 1.45);
+                    if (b4) tl.fromTo(b4, { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.55, ease: 'back.out(2.2)' }, 1.48);
+                }
+
+                // Timeline labels
+                tl.to('.timeline-step-item', {
+                    opacity: 1, y: 0, duration: 0.4, stagger: 0.12, ease: 'power2.out'
+                }, 0.5);
+
+            } else {
+                // Vanilla fallback
+                path.style.transition = 'stroke-dashoffset 1.45s ease-in-out';
+                path.style.strokeDashoffset = '0';
+                if (clipRect) clipRect.setAttribute('width', '540');
+
+                setTimeout(() => {
+                    const n1 = document.querySelector('.chart-node-1');
+                    if (n1) {
+                        const c = n1.querySelector('circle.chart-data-point');
+                        const b = n1.querySelector('.chart-badge-wrap');
+                        if (c) c.setAttribute('r', '5');
+                        if (b) { b.style.opacity = '1'; b.style.transform = 'none'; }
+                    }
+                }, 150);
+
+                setTimeout(() => {
+                    const n2 = document.querySelector('.chart-node-2');
+                    if (n2) {
+                        const c = n2.querySelector('circle.chart-data-point');
+                        const b = n2.querySelector('.chart-badge-wrap');
+                        if (c) c.setAttribute('r', '5');
+                        if (b) { b.style.opacity = '1'; b.style.transform = 'none'; }
+                    }
+                }, 650);
+
+                setTimeout(() => {
+                    const n3 = document.querySelector('.chart-node-3');
+                    if (n3) {
+                        const c = n3.querySelector('circle.chart-data-point');
+                        const b = n3.querySelector('.chart-badge-wrap');
+                        if (c) c.setAttribute('r', '5');
+                        if (b) { b.style.opacity = '1'; b.style.transform = 'none'; }
+                    }
+                }, 1050);
+
+                setTimeout(() => {
+                    const n4 = document.querySelector('.chart-node-4');
+                    if (n4) {
+                        const c = n4.querySelector('circle.chart-data-point');
+                        const b = n4.querySelector('.chart-badge-wrap');
+                        const pulse = n4.querySelector('.chart-point-pulse');
+                        if (c) c.setAttribute('r', '6');
+                        if (pulse) pulse.classList.add('is-active');
+                        if (b) { b.style.opacity = '1'; b.style.transform = 'none'; }
+                    }
+                    isAnimating = false;
+                }, 1450);
+
+                document.querySelectorAll('.timeline-step-item').forEach(item => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'none';
+                });
+            }
+        }
+
+        // Set initial hidden state immediately
+        setInitialState();
+
+        // Trigger on Scroll Into View using IntersectionObserver
+        let triggered = false;
+        if ('IntersectionObserver' in window) {
+            const chartObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !triggered) {
+                        triggered = true;
+                        playAnimation();
+                        chartObserver.disconnect();
+                    }
+                });
+            }, { threshold: 0.25 });
+            chartObserver.observe(chartWrap);
+        } else {
+            setTimeout(playAnimation, 600);
+        }
+
+        // Replay Button listener
+        if (replayBtn) {
+            replayBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                playAnimation();
+            });
+        }
+    }
+
+    // Initialize Weight Loss Journey Chart Animation
+    initWeightLossChartAnimation();
+
+    // =========================================================================
     // 4. PRICING & SELECTION ENGINE
     // =========================================================================
     function updatePricingAndUI() {
@@ -516,6 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 treatmentName: curData.name,
                 plan: planText,
                 total: calculatedTotal,
+                img: curData.img,
                 date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
                 customer: {
                     firstName: document.getElementById('firstName')?.value || 'Valued',

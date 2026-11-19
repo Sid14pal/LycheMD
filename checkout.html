@@ -136,8 +136,8 @@
 
                         <!-- Product Vials Artwork -->
                         <div class="checkout-hero-visual">
-                            <img src="Assets/images/semaglutide-vials-pair-trans.png"
-                                alt="LycheMD Clinical Compounded GLP-1 Prescription Medication Vials"
+                            <img src="Assets/images/semaglutide-tirzepatide-vials-pair.png"
+                                alt="LycheMD Clinical Compounded Semaglutide and Tirzepatide Prescription Medication Vials"
                                 class="checkout-hero-img" width="210" height="190" fetchpriority="high">
                         </div>
                     </div>
@@ -154,8 +154,19 @@
                     </p>
 
                     <!-- Interactive SVG Chart Component -->
-                    <div class="checkout-chart-wrap" aria-label="Weight loss curve chart">
-                        <svg class="checkout-chart-svg" viewBox="0 0 540 220" fill="none"
+                    <div class="checkout-chart-wrap" id="checkoutChartWrap" aria-label="Weight loss curve chart">
+                        <!-- Chart Header / Replay Action -->
+                        <button type="button" class="chart-replay-btn" id="chartReplayBtn"
+                            title="Replay trajectory animation" aria-label="Replay weight loss trajectory animation">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                                <polyline points="3 3 3 8 8 8"></polyline>
+                            </svg>
+                            <span>Replay</span>
+                        </button>
+
+                        <svg class="checkout-chart-svg" id="checkoutChartSvg" viewBox="0 0 540 220" fill="none"
                             xmlns="http://www.w3.org/2000/svg" role="img"
                             aria-label="Weight decrease from 215 lbs to 172 lbs over 4 months">
                             <defs>
@@ -164,51 +175,76 @@
                                     <stop offset="70%" stop-color="#ebf5ff" stop-opacity="0.08" />
                                     <stop offset="100%" stop-color="#ebf5ff" stop-opacity="0.00" />
                                 </linearGradient>
+                                <clipPath id="chartAreaClip">
+                                    <rect id="chartClipRect" x="0" y="0" width="540" height="220" />
+                                </clipPath>
                             </defs>
 
                             <!-- Subtle Horizontal Grid Lines -->
-                            <line x1="45" y1="40" x2="495" y2="40" class="chart-grid-line" />
-                            <text x="35" y="44" class="chart-axis-label" text-anchor="end">220 lbs</text>
+                            <g class="chart-grid-group">
+                                <line x1="45" y1="40" x2="495" y2="40" class="chart-grid-line" />
+                                <text x="35" y="44" class="chart-axis-label" text-anchor="end">220 lbs</text>
 
-                            <line x1="45" y1="90" x2="495" y2="90" class="chart-grid-line" />
-                            <text x="35" y="94" class="chart-axis-label" text-anchor="end">200 lbs</text>
+                                <line x1="45" y1="90" x2="495" y2="90" class="chart-grid-line" />
+                                <text x="35" y="94" class="chart-axis-label" text-anchor="end">200 lbs</text>
 
-                            <line x1="45" y1="140" x2="495" y2="140" class="chart-grid-line" />
-                            <text x="35" y="144" class="chart-axis-label" text-anchor="end">185 lbs</text>
+                                <line x1="45" y1="140" x2="495" y2="140" class="chart-grid-line" />
+                                <text x="35" y="144" class="chart-axis-label" text-anchor="end">185 lbs</text>
 
-                            <line x1="45" y1="190" x2="495" y2="190" class="chart-grid-line" />
-                            <text x="35" y="194" class="chart-axis-label" text-anchor="end">170 lbs</text>
+                                <line x1="45" y1="190" x2="495" y2="190" class="chart-grid-line" />
+                                <text x="35" y="194" class="chart-axis-label" text-anchor="end">170 lbs</text>
+                            </g>
 
-                            <!-- Gradient Area Under Curve -->
-                            <path
+                            <!-- Gradient Area Under Curve (with clip-path sync) -->
+                            <path id="chartAreaPath"
                                 d="M 60 50 C 130 65, 170 100, 205 105 C 240 110, 310 135, 345 145 C 380 155, 430 178, 480 188 L 480 205 L 60 205 Z"
-                                fill="url(#weightAreaGrad)" />
+                                fill="url(#weightAreaGrad)" clip-path="url(#chartAreaClip)" class="chart-area-path" />
 
                             <!-- Main Weight Loss Bézier Curve -->
-                            <path
+                            <path id="chartWeightPath"
                                 d="M 60 50 C 130 65, 170 100, 205 105 C 240 110, 310 135, 345 145 C 380 155, 430 178, 480 188"
-                                stroke="#4c6881" stroke-width="3.5" stroke-linecap="round" />
+                                stroke="#4c6881" stroke-width="3.5" stroke-linecap="round" class="chart-line-path" />
 
                             <!-- Data Point 1 (Month 1 Start) -->
-                            <circle cx="60" cy="50" r="5" class="chart-data-point" />
-                            <rect x="30" y="14" width="60" height="22" class="chart-badge-bg" />
-                            <text x="60" y="29" class="chart-badge-text">215 lbs</text>
+                            <g class="chart-node chart-node-1" tabindex="0" role="button"
+                                aria-label="Month 1: 215 pounds starting weight">
+                                <circle cx="60" cy="50" r="5" class="chart-data-point" />
+                                <g class="chart-badge-wrap">
+                                    <rect x="30" y="14" width="60" height="22" class="chart-badge-bg" />
+                                    <text x="60" y="29" class="chart-badge-text">215 lbs</text>
+                                </g>
+                            </g>
 
                             <!-- Data Point 2 (Month 2) -->
-                            <circle cx="205" cy="105" r="5" class="chart-data-point" />
-                            <rect x="175" y="70" width="60" height="22" class="chart-badge-bg" />
-                            <text x="205" y="85" class="chart-badge-text">198 lbs</text>
+                            <g class="chart-node chart-node-2" tabindex="0" role="button"
+                                aria-label="Month 2: 198 pounds">
+                                <circle cx="205" cy="105" r="5" class="chart-data-point" />
+                                <g class="chart-badge-wrap">
+                                    <rect x="175" y="70" width="60" height="22" class="chart-badge-bg" />
+                                    <text x="205" y="85" class="chart-badge-text">198 lbs</text>
+                                </g>
+                            </g>
 
                             <!-- Data Point 3 (Month 3) -->
-                            <circle cx="345" cy="145" r="5" class="chart-data-point" />
-                            <rect x="315" y="110" width="60" height="22" class="chart-badge-bg" />
-                            <text x="345" y="125" class="chart-badge-text">185 lbs</text>
+                            <g class="chart-node chart-node-3" tabindex="0" role="button"
+                                aria-label="Month 3: 185 pounds">
+                                <circle cx="345" cy="145" r="5" class="chart-data-point" />
+                                <g class="chart-badge-wrap">
+                                    <rect x="315" y="110" width="60" height="22" class="chart-badge-bg" />
+                                    <text x="345" y="125" class="chart-badge-text">185 lbs</text>
+                                </g>
+                            </g>
 
                             <!-- Data Point 4 (Month 4 Goal - Highlighted) -->
-                            <circle cx="480" cy="188" r="8" class="chart-point-pulse" />
-                            <circle cx="480" cy="188" r="6" class="chart-data-point" />
-                            <rect x="420" y="146" width="105" height="26" class="chart-badge-bg-target" />
-                            <text x="472.5" y="163" class="chart-badge-text">172 lbs (-43 lbs!)</text>
+                            <g class="chart-node chart-node-4" tabindex="0" role="button"
+                                aria-label="Month 4 Target: 172 pounds (-43 pounds lost)">
+                                <circle cx="480" cy="188" r="8" class="chart-point-pulse" />
+                                <circle cx="480" cy="188" r="6" class="chart-data-point chart-data-point-target" />
+                                <g class="chart-badge-wrap">
+                                    <rect x="420" y="146" width="105" height="26" class="chart-badge-bg-target" />
+                                    <text x="472.5" y="163" class="chart-badge-text">172 lbs (-43 lbs!)</text>
+                                </g>
+                            </g>
                         </svg>
 
                         <!-- Timeline Labels -->
@@ -263,7 +299,7 @@
                             Start your journey today with all-inclusive medical care
                         </span>
                         <span class="checkout-fee-badge">
-                            $0 Doctor Fee Included
+                            Consultation fee included
                         </span>
                     </div>
                 </section>
@@ -318,7 +354,7 @@
                                     class="checkout-included-photo" loading="lazy">
                             </div>
                             <h3 class="checkout-included-caption">
-                                Free Overnight<br>shipping to <span class="checkout-state-target">Georgia</span>
+                                Free shipping to <br><span class="checkout-state-target">orders over $150</span>
                             </h3>
                         </div>
                     </div>
@@ -333,8 +369,7 @@
                                 </svg>
                             </span>
                             <span class="checkout-checklist-text">
-                                <strong>UNLIMITED</strong> support from board-certified clinicians in '<span
-                                    class="checkout-state-code">STATE</span>'
+                                <strong>UNLIMITED</strong> support from board-certified clinicians
                             </span>
                         </li>
                         <li class="checkout-checklist-row">
@@ -871,7 +906,8 @@
                             <h3 class="checkout-step-title">Payment Information</h3>
                         </div>
                         <p class="checkout-step-subtitle">
-                            All transactions are encrypted with 256-bit bank-grade SSL security protocols.
+                            The card will be charged only after the licensed clinical services provider approves and
+                            prescribes the treatment.
                         </p>
 
                         <!-- Supported Card Brands Badges -->
@@ -943,8 +979,7 @@
                             </div>
 
                             <div class="checkout-badges-icons-wrap" aria-label="Security certification badges">
-                                <img src="Assets/images/cards-2.png" alt="FDA cGMP Pharmacies" width="400"
-                                    height="400">
+                                <img src="Assets/images/cards-2.png" alt="FDA cGMP Pharmacies" width="400" height="400">
                             </div>
                         </div>
 
@@ -1029,11 +1064,14 @@
                             <div class="faq-collapse">
                                 <div class="faq-answer-inner">
                                     <p class="mb-0">
-                                        Immediately after completing checkout, you will answer a brief 3-minute medical
-                                        intake questionnaire detailing your health goals, medical background, and
-                                        current vitals. A licensed US physician reviews your questionnaire to confirm
-                                        medical safety, adjusts dosage protocols, and sends your prescription
-                                        electronically to the pharmacy.
+                                        After checkout, you'll complete a brief 3-minute medical questionnaire about
+                                        your health history and goals. A licensed U.S. healthcare provider will review
+                                        your information to determine if treatment is appropriate.<br>
+
+                                        <b>Please note:</b> Completing checkout does not guarantee a prescription. All
+                                        prescriptions are subject to medical evaluation and approval by a licensed
+                                        healthcare provider. If approved, your prescription will be sent electronically
+                                        to the pharmacy for fulfillment.
                                     </p>
                                 </div>
                             </div>
